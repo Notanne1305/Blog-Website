@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,7 +14,12 @@ Route::get('/dashboard', [UserController::class, 'home'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('admin/dashboard', [UserController::class, 'index'])
-    ->middleware(['auth', 'admin'])->name('admin.dashboard');
+    ->middleware(['auth', 'admin'])
+    ->name('admin.dashboard');
+
+Route::get('admin/dashboard/post', [UserController::class, 'post'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.dashboard.post');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
