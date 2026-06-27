@@ -21,7 +21,11 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 @if(Auth::check() && Auth::user()->usertype=='admin')  
                 <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                        {{ __('Admin Dashboard') }}
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+
+                <x-nav-link :href="route('admin.addpost')" :active="request()->routeIs('admin.addpost')">
+                        {{ __('Add Post') }}
                     </x-nav-link>
                 @else
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

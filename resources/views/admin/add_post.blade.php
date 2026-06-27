@@ -13,7 +13,18 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    {{ __("This is post page") }}
+                    <form action="" method="post" 
+                    enctype=multipart/form/data>>
+
+                        <input type="text" name="title" placeholder="Enter Post Title here!"> <br>
+                        <textarea name="description" id=""> 
+                            Write your post here!
+                        </textarea> <br>
+                        <input type="file" name="image"> 
+                        <input style="border:1px solid blue; text-align:center; padding:10px;"
+                        type="submit" name="submit" value="Add Post">
+
+                    </form>
                 </div>
             </div>
         </div>
