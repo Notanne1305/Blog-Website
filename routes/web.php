@@ -17,6 +17,7 @@ Route::get('/dashboard', [UserController::class, 'home'])
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::get('/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/addpost',[AdminController::class, 'addpost'])->name('admin.addpost');
+    Route::post('/dashboard/addpost',[AdminController::class, 'createpost'])->name('admin.createpost');
 });
 
 Route::middleware('auth')->group(function () {

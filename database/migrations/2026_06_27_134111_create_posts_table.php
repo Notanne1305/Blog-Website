@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
+            $table->id()->autoIncrement();
+            $table->string('title')->nullable();
             $table->longText('description')->nullable(); 
             $table->string('image')->nullable();
             $table->string('user_name');
