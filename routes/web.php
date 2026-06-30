@@ -7,9 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('home');
-    })->name('home');
+Route::get('/',[UserController::class,'showDataInHome'])->name('home');
 
 Route::get('/dashboard', [UserController::class, 'home'])
     ->middleware(['auth', 'verified'])->name('dashboard');

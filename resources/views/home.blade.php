@@ -48,54 +48,26 @@
     <!-- Featured Posts -->
     <div class="container">
         <h2 class="section-title">Featured Posts</h2>
+       
         <div class="featured-posts">
-            <!-- Post 1 -->
+            <!--All Post-->
+            @foreach($post as $posts)
             <div class="post-card">
                 <div class="post-image">
-                    <img src="https://via.placeholder.com/600x400?text=Laravel+Tips" alt="Laravel Tips">
+                    <img src="{{ asset('img/' . $posts->image) }}" alt="{{ $posts->title }}">
                 </div>
                 <div class="post-content">
                     <div class="post-meta">
-                        <span>May 15, 2023</span>
-                        <span>5 min read</span>
+                        <span>{{$posts->created_at}}</span>
                     </div>
-                    <h3 class="post-title">10 Laravel Tips to Improve Your Code</h3>
-                    <p class="post-excerpt">Learn how to write cleaner, more efficient Laravel code with these practical tips...</p>
+                    <h3 class="post-title">{{$posts->title}}</h3>
+                    <p class="post-excerpt">{{$posts->description}}</p>
                     <a href="/post/10-laravel-tips" class="read-more">Read More →</a>
                 </div>
             </div>
+            @endforeach
 
-            <!-- Post 2 -->
-            <div class="post-card">
-                <div class="post-image">
-                    <img src="https://via.placeholder.com/600x400?text=Eloquent" alt="Eloquent ORM">
-                </div>
-                <div class="post-content">
-                    <div class="post-meta">
-                        <span>April 28, 2023</span>
-                        <span>8 min read</span>
-                    </div>
-                    <h3 class="post-title">Mastering Eloquent Relationships</h3>
-                    <p class="post-excerpt">A deep dive into Laravel's Eloquent ORM and how to effectively use relationships...</p>
-                    <a href="/post/mastering-eloquent" class="read-more">Read More →</a>
-                </div>
-            </div>
-
-            <!-- Post 3 -->
-            <div class="post-card">
-                <div class="post-image">
-                    <img src="https://via.placeholder.com/600x400?text=Livewire" alt="Laravel Livewire">
-                </div>
-                <div class="post-content">
-                    <div class="post-meta">
-                        <span>April 10, 2023</span>
-                        <span>6 min read</span>
-                    </div>
-                    <h3 class="post-title">Building Reactive UIs with Livewire</h3>
-                    <p class="post-excerpt">Create dynamic interfaces without writing JavaScript using Laravel Livewire...</p>
-                    <a href="/post/livewire-guide" class="read-more">Read More →</a>
-                </div>
-            </div>
+           
         </div>
 
         <!-- Categories -->

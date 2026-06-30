@@ -3,9 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Post;
 
 class UserController extends Controller
 {
+    public function  showDataInHome(){
+        $post=Post::all();
+        return view('home', compact('post'));
+
+    }
     public function home(Request $request ){
         if ($request->user()->usertype == 'user'){
                 return view('dashboard');               
@@ -24,12 +31,4 @@ class UserController extends Controller
             return redirect()->route('dashboard');
         }
     }
-
-    public function post(){
-        return view('admin.post');
-    }
-    
-    public function createpost(){
-        return view('admin.createpost');
-    }
-    }
+}
