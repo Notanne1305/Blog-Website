@@ -13,6 +13,12 @@ class UserController extends Controller
         return view('home', compact('post'));
 
     }
+
+    public function showFullPost($id){
+        $post=Post::findOrFail($id);
+        return view('fullpost', compact('post')); 
+    }
+
     public function home(Request $request ){
         if ($request->user()->usertype == 'user'){
                 return view('dashboard');               
