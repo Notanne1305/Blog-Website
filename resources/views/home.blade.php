@@ -61,7 +61,7 @@
                         <span>{{$posts->created_at}}</span>
                     </div>
                     <h3 class="post-title">{{$posts->title}}</h3>
-                    <p class="post-excerpt">{{$posts->description}}</p>
+                    <p class="post-excerpt">{{Str::limit($posts->description, 100)}}...</p>
                     <a href="{{route('fullpost', $posts->id)}}" 
                     class="read-more">Read More →</a>
                 </div>

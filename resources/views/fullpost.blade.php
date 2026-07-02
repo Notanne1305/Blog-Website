@@ -64,8 +64,8 @@
 
                 <!-- Featured Image -->
                 @if($post->image)
-                <div class="mb-8 rounded-lg overflow-hidden">
-                    <img style="width: 800px;" src="{{ asset('img/' . $post->image) }}" alt="{{ $post->title }}" class="w-full h-auto object-cover">
+                <div class="mb-8 rounded-lg overflow-hidden mx-auto block">
+                    <img style="width: 600px;" src="{{ asset('img/' . $post->image) }}" alt="{{ $post->title }}" class="w-full h-auto object-cover">
                 </div>
                 @endif
 
@@ -75,6 +75,44 @@
                 </div>
             </div>
         </div> 
+        </div>
+
+        <!-- Comments Section -->
+        <div class="container">
+            <h2 class="section-title">Comments</h2>
+
+            <div class="comments-list">
+                @forelse($post->comments as $comment)
+                    <div style="display:flex; gap:10px; margin-bottom:16px;">
+                        <div style="width:40px; height:40px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                            {{ strtoupper(substr($comment->user->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <div style="background:#f0f2f5; border-radius:18px; padding:8px 12px; display:inline-block;">
+                                <strong style="font-size:0.9em;">{{ $comment->user->name }}</strong>
+                                <p style="margin:2px 0 0; font-size:0.95em;">{{ $comment->body }}</p>
+                            </div>
+                            <div style="font-size:0.8em; color:#65676b; margin-top:4px; padding-left:12px;">
+                                <a href="#" style="font-weight:600; margin-right:10px;">Like</a>
+                                <a href="#" style="font-weight:600; margin-right:10px;">Reply</a>
+                                <span>{{ $comment->created_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p style="color:#65676b;">No comments yet. Be the first to comment!</p>
+                @endforelse
+            </div>
+
+            <form action="{{ route('comment.store', $post) }}" method="POST" style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+                @csrf
+                <div style="width:36px; height:36px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <input type="text" name="body" required placeholder="Write a comment..."
+                    style="flex:1; background:#f0f2f5; border:none; border-radius:20px; padding:10px 16px; outline:none;">
+                <button type="submit" style="background:none; border:none; color:#1877f2; font-weight:600; cursor:pointer;">Post</button>
+            </form>
         </div>
 
         <!-- Categories -->
@@ -100,6 +138,7 @@
             </form>
         </div>
     </div>
+    
 
     <!-- Footer -->
     <footer>

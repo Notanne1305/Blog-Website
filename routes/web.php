@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CommentController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,9 @@ Route::get('/',[UserController::class,'showDataInHome'])
     ->name('home');
 Route::get('/fullpost/{id}', [UserController::class, 'showFullPost'])
     ->name('fullpost');
+Route::post('/post{post}/comment', [CommentController::class, 'store'])
+    ->middleware('auth')
+    ->name('comment.store');
 Route::get('/dashboard', [UserController::class, 'home'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
