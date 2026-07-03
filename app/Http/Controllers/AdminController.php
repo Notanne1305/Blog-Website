@@ -33,6 +33,13 @@ class AdminController extends Controller
             }       
     }
 
+    public function allpost(){
+        $post = Post::all();
+        return view('admin.allpost', compact('post'));
+
+    }
+    
+
 }
        
 
