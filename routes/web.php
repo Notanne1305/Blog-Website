@@ -25,6 +25,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::get('/dashboard/allpost',[AdminController::class, 'allpost'])->name('admin.allpost');
     Route::get('/dashboard/allpost/{id}',[AdminController::class, 'updatePost'])->name('admin.update');
     Route::post('/dashboard/allpost/{id}',[AdminController::class, 'postupdate'])->name('admin.postupdate');
+    Route::get('/dashboard/delete/{id}',[AdminController::class, 'deletePost'])->name('admin.deletepost');
+    Route::post('/dashboard/delete/{id}',[AdminController::class, 'postDelete'])->name('admin.postdelete');
+    
 });
 
 Route::middleware('auth')->group(function () {

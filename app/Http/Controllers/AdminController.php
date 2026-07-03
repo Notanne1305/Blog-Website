@@ -25,7 +25,7 @@ class AdminController extends Controller
 
         if($post->save()){
             $image->move(public_path('img'), $imagename);
-            return redirect()->route('admin.addpost')->with('status', 'Added Successfully!');
+            return redirect()->route('admin.allpost')->with('status', 'Added Successfully!');
         }       
     }
 
@@ -57,9 +57,21 @@ class AdminController extends Controller
         $post->save();
   
         return redirect()->route('admin.allpost')->with('status', 'Updated Successfully!');    
-    }     
-}
+    }  
+    
+    public function deletePost($id){
+        $post = Post::findOrFail($id);
+        return view('admin.postdelete', compact('post'));
+        // return redirect()->route('admin.allpost')->with('status', 'Deleted Successfully!');
+    }
 
+    public function postDelete(Request $request, $id){
+        $post = Post::findOrFail($id);
+        $post->delete();
+        return redirect()->route('admin.allpost')->with('danger', 'Deleted Successfully!');
+    }
+}
+   
 
        
 
