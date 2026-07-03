@@ -67,8 +67,13 @@ class AdminController extends Controller
 
     public function postDelete(Request $request, $id){
         $post = Post::findOrFail($id);
-        $post->delete();
+        if ($request->id==$post->id){
+         $post->delete();
         return redirect()->route('admin.allpost')->with('danger', 'Deleted Successfully!');
+        }
+        else{
+            return redirect()->route('admin.allpost')->with('warning', 'Invalid Post ID!');
+        }
     }
 }
    

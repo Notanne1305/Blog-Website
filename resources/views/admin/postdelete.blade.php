@@ -18,7 +18,7 @@
                     <!-- single post -->
                     <form style="text-allin:center;"action="{{route('admin.postdelete', $post->id)}}" method="post"> 
                     @csrf
-                        <input type="text" name="id" placeholder="Enter Post Id here!"> <br><br><br>
+                        <input type="text" name="id" placeholder="Enter Post Id here!" required> <br><br><br>
                         
                         <input style="border:1px solid blue; text-align:center; 
                         padding:10px;" type="submit" name="submit" 

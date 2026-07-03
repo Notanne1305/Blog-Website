@@ -23,6 +23,11 @@
                             {{session('danger')}}
                         </div> <br>
                     @endif
+                    @if (session('warning'))
+                        <div style="background-color: yellow;" class="alert alert-success">
+                            {{session('warning')}}
+                        </div> <br>
+                    @endif
                     <!--  all post   -->
                     <h1 style="color: #333; text-align: center; margin-bottom: 30px;">Posts Management</h1>
     
