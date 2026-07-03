@@ -12,25 +12,21 @@ class AdminController extends Controller
         return view('admin.add_post');
     }
 
-    public function createpost(Request $request)
-    {
-    $post = new Post();
-            $post->title = $request->title;
-            $post->description = $request->description;
+    public function createpost(Request $request){
+        $post = new Post();
+        $post->title = $request->title;
+        $post->description = $request->description;
+        $image = $request->file('image');
+        $imagename = time() . '.' . $image->getClientOriginalExtension();
+    
+        $post->image = $imagename;
+        $post->user_name = Auth::user()->name;
+        $post->user_id = Auth::user()->id;
 
-            $image = $request->file('image');
-            $imagename = time() . '.' . $image->getClientOriginalExtension();
+        if($post->save()){
             $image->move(public_path('img'), $imagename);
-
-            $post->image = $imagename;
-            $post->user_name = Auth::user()->name;
-            $post->user_id = Auth::user()->id;
-            $post->save();
-
-            if($post->save()){
             return redirect()->route('admin.addpost')->with('status', 'Added Successfully!');
-
-            }       
+        }       
     }
 
     public function allpost(){
@@ -38,8 +34,32 @@ class AdminController extends Controller
         return view('admin.allpost', compact('post'));
 
     }
-    
 
+    public function updatePost($id){
+        $post=Post::findOrFail($id);
+        return view('admin.updatepost', compact('post'));
+    }
+    
+    public function postupdate(Request $request, $id ){
+        $post= Post::findOrFail($id);
+        $post->title = $request->title;
+        $post->description = $request->description;
+      
+        if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imagename = time() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('img'), $imagename);
+        $post->image = $imagename;
+        }
+       
+        $post->user_name = Auth::user()->name;
+        $post->user_id = Auth::user()->id;
+        $post->save();
+  
+        return redirect()->route('admin.allpost')->with('status', 'Updated Successfully!');    
+    }     
 }
+
+
        
 
