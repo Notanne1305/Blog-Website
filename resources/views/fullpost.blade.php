@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+    <meta name="user-name" content="{{ auth()->user()->name }}">
+    @endauth
     <title>MyBlog - Home</title>
     <link rel="stylesheet" href="{{asset('homestyle.css')}}">
+    @vite(['resources/css/home.css', 'resources/js/home.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -68,32 +73,31 @@
         </div> 
         </div>
 
-        <!-- Comments Section -->
+       <!-- Comments Section -->
         <div class="container">
             <h2 class="section-title">Comments</h2>
 
-            <div class="comments-list">
-                @forelse($post->comments as $comment)
-                    <div style="display:flex; gap:10px; margin-bottom:16px;">
-                        <div style="width:40px; height:40px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
-                            {{ strtoupper(substr($comment->user->name, 0, 1)) }}
-                        </div>
-                        <div>
-                            <div style="background:#f0f2f5; border-radius:18px; padding:8px 12px; display:inline-block;">
-                                <strong style="font-size:0.9em;">{{ $comment->user->name }}</strong>
-                                <p style="margin:2px 0 0; font-size:0.95em;">{{ $comment->body }}</p>
-                            </div>
-                            <div style="font-size:0.8em; color:#65676b; margin-top:4px; padding-left:12px;">
-                                <a href="#" style="font-weight:600; margin-right:10px;">Like</a>
-                                <a href="#" style="font-weight:600; margin-right:10px;">Reply</a>
-                                <span>{{ $comment->created_at->diffForHumans() }}</span>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <p style="color:#65676b;">No comments yet. Be the first to comment!</p>
-                @endforelse
+            {{-- Dynamic comments loaded via JS --}}
+            <div id="fullpost-comments-list" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+                <p style="color:#65676b; text-align:center;">Loading comments...</p>
             </div>
+
+            {{-- Comment input --}}
+            @auth
+            <div style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <input type="text" id="fullpost-comment-input" placeholder="Write a comment..."
+                    style="flex:1; background:#f0f2f5; border:none; border-radius:20px; padding:10px 16px; outline:none;">
+                <button id="fullpost-comment-submit" style="background:none; border:none; color:#1877f2; font-weight:600; cursor:pointer;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            @else
+            <p style="margin-top:16px;"><a href="{{ route('login') }}" style="color:#1877f2;">Log in to comment</a></p>
+            @endauth
+        </div>
 
             <form action="{{ route('comment.store', $post) }}" method="POST" style="display:flex; gap:10px; align-items:center; margin-top:16px;">
                 @csrf
@@ -170,5 +174,72 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        const fullpostId = {{ $post->id }};
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const list = document.getElementById('fullpost-comments-list');
+            const input = document.getElementById('fullpost-comment-input');
+            const submitBtn = document.getElementById('fullpost-comment-submit');
+
+            // Load comments
+            fetch(`/post/${fullpostId}/comments`)
+                .then(res => res.json())
+                .then(comments => {
+                    if (comments.length === 0) {
+                        list.innerHTML = '<p style="color:#65676b; text-align:center;">No comments yet. Be the first!</p>';
+                        return;
+                    }
+                    list.innerHTML = comments.map(c => renderComment(c)).join('');
+                    attachCommentEvents(list);
+                });
+
+            // Submit comment
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    const body = input.value.trim();
+                    if (!body) return;
+
+                    fetch(`/post/${fullpostId}/comment`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({ body }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const noComments = list.querySelector('p');
+                            if (noComments) noComments.remove();
+
+                            const newCommentEl = document.createElement('div');
+                            newCommentEl.innerHTML = renderComment({
+                                id: data.comment.id,
+                                body: data.comment.body,
+                                user_name: data.comment.user_name,
+                                created_at: 'Just now',
+                                reaction_count: 0,
+                                reaction_emoji: '',
+                                replies: [],
+                            });
+                            list.appendChild(newCommentEl.firstElementChild);
+                            attachCommentEvents(list);
+                            input.value = '';
+                        }
+                    });
+                });
+
+                // Submit on Enter
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') submitBtn.click();
+                });
+            }
+        });
+        </script>
+
 </body>
 </html>

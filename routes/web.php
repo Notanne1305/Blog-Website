@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\CommentReactionController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
     Route::delete('/post/{post}/react', [ReactionController::class, 'destroy'])->middleware('auth')->name('reaction.destroy');
     Route::get('/post/{post}/comments', [CommentController::class, 'fetch'])->name('comment.fetch');
     Route::post('/post/{post}/comment', [CommentController::class, 'store'])->middleware('auth')->name('comment.store');
+    Route::post('/comment/{comment}/react', [CommentReactionController::class, 'react'])->middleware('auth')->name('comment.react');
+    Route::post('/comment/{comment}/reply', [CommentReactionController::class, 'reply'])->middleware('auth')->name('comment.reply');
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::get('/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
