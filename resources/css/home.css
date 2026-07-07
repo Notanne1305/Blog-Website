@@ -1,0 +1,477 @@
+/* General Styling */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+.facebook-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Overlay for when sidebar is open */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 5px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.top-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    color: #1877f2;
+    font-size: 28px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.search-box {
+    background-color: #f0f2f5;
+    border-radius: 50px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    color: #65676b;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    margin-left: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+.top-center {
+    display: none; /* Hide on mobile by default */
+}
+
+.top-right {
+    display: flex;
+    align-items: center;
+}
+
+.top-right a, .top-right i {
+    margin-left: 10px;
+    font-size: 20px;
+    color: #000;
+    cursor: pointer;
+}
+
+.top-right .profile-nav-link img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.menu-btn {
+    display: block; /* Show menu button on mobile */
+}
+
+/* Main Content Area */
+.main-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile-first layout */
+    gap: 20px;
+    padding-top: 10px;
+}
+
+/* Sidebar (Off-Canvas Menu) */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Hidden by default */
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,.2);
+    z-index: 101;
+    transition: right 0.3s ease-in-out;
+}
+
+.sidebar.active {
+    right: 0;
+}
+
+.sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid #e4e6eb;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sidebar-item:hover {
+    background-color: #f0f2f5;
+}
+
+.sidebar-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.sidebar-item i {
+    font-size: 20px;
+    margin-right: 15px;
+    width: 30px;
+    text-align: center;
+}
+
+/* Center Content (Main Feed) */
+.center-content {
+    background-color: #f0f2f5;
+    padding-bottom: 60px; /* Space for bottom nav */
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+
+/* Create Post Section */
+.create-post-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    margin: 0 10px 20px;
+}
+
+.post-input-area {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e4e6eb;
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.post-input-area img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-input-area input {
+    width: 100%;
+    background-color: #f0f2f5;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 15px;
+    outline: none;
+}
+
+.post-options {
+    display: flex;
+    justify-content: space-around;
+}
+
+.post-options .option {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #65676b;
+    cursor: pointer;
+}
+
+.post-options .option i {
+    font-size: 20px;
+    margin-right: 5px;
+}
+
+.video-icon { color: #f02849; }
+.photo-icon { color: #45bd62; }
+.feeling-icon { color: #f7b928; }
+
+/* Post Card */
+.post-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    margin: 0 10px 20px;
+    padding: 15px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+}
+
+.post-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-user-info .post-username {
+    font-weight: bold;
+    margin: 0;
+}
+
+.post-user-info .post-time {
+    font-size: 12px;
+    color: #65676b;
+    margin: 0;
+}
+
+.post-body {
+    margin-top: 10px;
+}
+
+.post-body p {
+    margin-bottom: 10px;
+}
+
+.post-body img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.post-footer {
+    border-top: 1px solid #e4e6eb;
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.post-reactions {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #65676b;
+    margin-bottom: 10px;
+}
+
+.post-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.post-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #65676b;
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.post-buttons button:hover {
+    background-color: #f0f2f5;
+}
+
+.post-buttons button i {
+    margin-right: 5px;
+}
+
+.post-buttons button {
+    flex: 1;
+}
+
+.like-button.liked {
+    color: #1877f2;
+}
+
+/* Reaction System */
+.reaction-btn-container {
+    position: relative;
+    flex: 1;
+}
+
+.reaction-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #65676b;
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.reaction-btn:hover {
+    background-color: #f0f2f5;
+}
+
+.reaction-btn.active {
+    color: #e74c3c;
+}
+
+.reaction-picker {
+    position: absolute;
+    bottom: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border-radius: 50px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+.reaction-btn-container:hover .reaction-picker {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reaction-option {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s;
+    padding: 5px;
+    border-radius: 6px;
+}
+
+.reaction-option:hover {
+    transform: scale(1.3);
+}
+
+.reaction-option i {
+    margin-right: 0;
+}
+
+.reaction-num {
+    font-weight: 600;
+}
+
+/* Friends section */
+.friends-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+.friend-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
+.friend-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Mobile Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 -2px 4px rgba(0,0,0,.1);
+    display: flex;
+    justify-content: space-around;
+    padding: 5px 0;
+    z-index: 99;
+}
+
+.bottom-nav .nav-icon {
+    font-size: 24px;
+    color: #65676b;
+    padding: 10px;
+    text-decoration: none;
+}
+
+.bottom-nav .nav-icon.active {
+    color: #1877f2;
+}
+
+/* Media Queries for Desktop View */
+@media (min-width: 1000px) {
+    .main-content-wrapper {
+        grid-template-columns: 1fr 2fr 1fr;
+    }
+    .top-center {
+        display: flex; /* Show desktop nav */
+    }
+    .bottom-nav, .menu-btn {
+        display: none; /* Hide mobile nav and menu button */
+    }
+    .sidebar {
+        position: relative;
+        right: 0;
+        width: 300px;
+        height: auto;
+        box-shadow: none;
+    }
+    .overlay {
+        display: none;
+    }
+    .left-sidebar {
+        display: block;
+    }
+    .right-sidebar {
+        display: block;
+    }
+}

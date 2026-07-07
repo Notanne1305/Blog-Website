@@ -36,19 +36,10 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Welcome to MyBlog</h1>
-            <p>Discover amazing articles, tutorials, and insights about web development, Laravel, and modern PHP practices.</p>
-            <a href="/blog" class="btn btn-primary">Browse Articles</a>
-        </div>
-    </section>
+
 
     <!-- Featured Posts -->
     <div class="container">
-        <h2 class="section-title">All Posts</h2>
-       
         <div class="featured-posts">
             <!-- single post -->
             
