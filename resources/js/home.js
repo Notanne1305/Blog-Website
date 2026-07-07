@@ -1,27 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const navIcons = document.querySelectorAll('.nav-icon');
     const sections = document.querySelectorAll('.content-section');
-    const likeButtons = document.querySelectorAll('.like-button');
     const menuBtn = document.querySelector('.menu-btn');
     const sidebar = document.querySelector('.off-canvas-right');
     const overlay = document.querySelector('.overlay');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-    // Handle both top and bottom navigation
+    // Navigation
     function handleNavigation(element) {
         const targetSectionId = element.dataset.section;
-
-        // Remove active class from all nav icons
         navIcons.forEach(i => i.classList.remove('active'));
-        
-        // Add active class to the clicked icon (if it has a section)
         if (element.classList.contains('nav-icon')) {
             element.classList.add('active');
         }
-
-        // Hide all sections
         sections.forEach(s => s.classList.remove('active'));
-        
-        // Show the target section
         if (targetSectionId) {
             document.getElementById(targetSectionId).classList.add('active');
         }
@@ -34,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Mobile Menu Logic
+    // Mobile Menu
     menuBtn.addEventListener('click', () => {
         sidebar.classList.toggle('active');
         overlay.classList.toggle('active');
@@ -45,58 +37,30 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.remove('active');
     });
 
-    // Like Button Logic
-    likeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            button.classList.toggle('liked');
-            const icon = button.querySelector('i');
-            
-            if (button.classList.contains('liked')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-            }
-        });
-    });
-
-    // Reaction System Logic
-    const reactionBtns = document.querySelectorAll('.reaction-btn');
-    const reactionOptions = document.querySelectorAll('.reaction-option');
-
+    // Reaction emoji map
     const reactionData = {
-        like: { emoji: '👍', icon: 'fas fa-heart', color: '#1877f2' },
-        love: { emoji: '❤️', icon: 'fas fa-heart', color: '#e74c3c' },
-        haha: { emoji: '😂', icon: 'fas fa-grin-squint', color: '#ffc107' },
-        wow: { emoji: '😮', icon: 'fas fa-surprise', color: '#ffc107' },
-        sad: { emoji: '😢', icon: 'fas fa-frown', color: '#ffc107' },
-        angry: { emoji: '😠', icon: 'fas fa-angry', color: '#ff6b6b' }
+        like:  { emoji: '👍', icon: 'fas fa-thumbs-up',   color: '#1877f2' },
+        love:  { emoji: '❤️', icon: 'fas fa-heart',        color: '#e74c3c' },
+        haha:  { emoji: '😂', icon: 'fas fa-grin-squint',  color: '#ffc107' },
+        wow:   { emoji: '😮', icon: 'fas fa-surprise',     color: '#ffc107' },
+        sad:   { emoji: '😢', icon: 'fas fa-frown',        color: '#ffc107' },
+        angry: { emoji: '😠', icon: 'fas fa-angry',        color: '#ff6b6b' }
     };
 
-    // Track reactions per post (client-side storage for demo)
-    const postReactions = {};
-
-    reactionBtns.forEach(btn => {
-        const postId = btn.dataset.postId;
-        if (!postReactions[postId]) {
-            postReactions[postId] = { reaction: null, count: 0 };
-        }
-
+    // Reaction button toggle picker
+    document.querySelectorAll('.reaction-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const container = btn.parentElement;
-            const picker = container.querySelector('.reaction-picker');
-            
-            // Toggle picker visibility on click
+            const picker = btn.parentElement.querySelector('.reaction-picker');
             picker.style.opacity = picker.style.opacity === '1' ? '0' : '1';
             picker.style.visibility = picker.style.visibility === 'visible' ? 'hidden' : 'visible';
         });
     });
 
-    reactionOptions.forEach(option => {
+    // Reaction option click — saves to DB via fetch
+    document.querySelectorAll('.reaction-option').forEach(option => {
         option.addEventListener('click', (e) => {
             e.stopPropagation();
-            
+
             const reaction = option.dataset.reaction;
             const picker = option.closest('.reaction-picker');
             const btn = picker.previousElementSibling;
@@ -104,33 +68,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = btn.closest('.post-card');
             const reactionCount = container.querySelector('.reaction-num');
             const reactionEmoji = container.querySelector('.reaction-emoji');
-
-            // Update reaction data
-            if (postReactions[postId].reaction === reaction) {
-                // Toggle off if same reaction clicked
-                postReactions[postId].reaction = null;
-                postReactions[postId].count = 0;
-                btn.classList.remove('active');
-                reactionEmoji.textContent = '';
-                reactionCount.textContent = '0';
-                btn.innerHTML = '<i class="far fa-heart"></i> Like';
-            } else {
-                // Add or change reaction
-                postReactions[postId].reaction = reaction;
-                postReactions[postId].count = 1;
-                btn.classList.add('active');
-                
-                const data = reactionData[reaction];
-                reactionEmoji.textContent = data.emoji;
-                reactionCount.textContent = '1';
-                
-                btn.innerHTML = `<i class="${data.icon}"></i> ${reaction.charAt(0).toUpperCase() + reaction.slice(1)}`;
-                btn.style.color = data.color;
-            }
+            const reactionBtnContainer = container.querySelector('.reaction-btn-container');
 
             // Close picker
             picker.style.opacity = '0';
             picker.style.visibility = 'hidden';
+
+            // ---- SAVE TO DATABASE ----
+            fetch(`/post/${postId}/react`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ type: reaction }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Update count from DB response
+                    reactionCount.textContent = data.total;
+
+                    // Update emoji
+                    reactionEmoji.textContent = reactionData[reaction].emoji;
+
+                    // Update button appearance
+                    btn.innerHTML = `<i class="${reactionData[reaction].icon}"></i> ${reaction.charAt(0).toUpperCase() + reaction.slice(1)}`;
+                    btn.style.color = reactionData[reaction].color;
+                    btn.classList.add('active');
+
+                    // Update data-reactors for popup
+                    reactionBtnContainer.dataset.reactors = JSON.stringify(data.users);
+                }
+            })
+            .catch(err => {
+                console.error('Reaction error:', err);
+            });
         });
     });
 
@@ -141,6 +114,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 picker.style.opacity = '0';
                 picker.style.visibility = 'hidden';
             });
+        }
+    });
+
+    // Show who reacted on click of reaction count
+    document.querySelectorAll('.reaction-count').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', function () {
+            const container = this.closest('.post-footer')
+                                  .querySelector('.reaction-btn-container');
+            const reactors = JSON.parse(container.dataset.reactors || '[]');
+
+            if (reactors.length === 0) {
+                alert('No reactions yet.');
+                return;
+            }
+
+            // Build popup
+            let html = `
+                <div id="reactor-popup" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.3); z-index:9999; min-width:280px; max-height:400px; overflow-y:auto;">
+                    <h3 style="margin:0 0 12px;">Reactions</h3>
+                    <span onclick="document.getElementById('reactor-popup').remove(); document.getElementById('reactor-overlay').remove();" style="position:absolute; top:12px; right:16px; cursor:pointer; font-size:1.2em;">✕</span>
+            `;
+
+            reactors.forEach(r => {
+                html += `
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <span style="font-size:1.4em;">${reactionData[r.type]?.emoji ?? '👍'}</span>
+                        <span>${r.name}</span>
+                    </div>
+                `;
+            });
+
+            html += `</div>
+                <div id="reactor-overlay" onclick="this.remove(); document.getElementById('reactor-popup').remove();" style="position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:9998;"></div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        });
+    });
+
+    // Load initial reaction state on page load
+    document.querySelectorAll('.reaction-btn-container').forEach(container => {
+        const postId = container.dataset.postId;
+        const reactors = JSON.parse(container.dataset.reactors || '[]');
+        const btn = container.querySelector('.reaction-btn');
+        const postCard = container.closest('.post-card');
+        if (!postCard || !btn) return;
+
+        const reactionEmoji = postCard.querySelector('.reaction-emoji');
+        const reactionCount = postCard.querySelector('.reaction-num');
+
+        // Check if current logged-in user already reacted
+        const loggedInUserName = document.querySelector('meta[name="user-name"]')?.content;
+        if (loggedInUserName) {
+            const userReaction = reactors.find(r => r.name === loggedInUserName);
+            if (userReaction) {
+                const data = reactionData[userReaction.type];
+                btn.innerHTML = `<i class="${data.icon}"></i> ${userReaction.type.charAt(0).toUpperCase() + userReaction.type.slice(1)}`;
+                btn.style.color = data.color;
+                btn.classList.add('active');
+            }
         }
     });
 });

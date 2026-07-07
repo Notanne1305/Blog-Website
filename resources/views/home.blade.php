@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+    <meta name="user-name" content="{{ auth()->user()->name }}">
+    @endauth
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ArtBlog - Home</title>
-    {{-- OLD: <link rel="stylesheet" href="{{asset('homestyle.css')}}"> --}}
-    {{-- NEW: switched to @vite since files moved to resources/ --}}
     @vite(['resources/css/home.css', 'resources/js/home.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -75,9 +77,6 @@
                 <i class="fas fa-tachometer-alt"></i>
                 <span><a href="{{ route('dashboard') }}">Dashboard</a></span>
             </div>
-
-            {{-- OLD: <span>Log Out</span> plain text --}}
-            {{-- NEW: proper Laravel POST logout form with @csrf --}}
             <div class="sidebar-item">
                 <i class="fas fa-sign-out-alt"></i>
                 <form method="POST" action="{{ route('logout') }}">
@@ -113,7 +112,7 @@
                 </div>
                 @endauth
 
-                {{-- ====== POSTS FEED - MAIN DYNAMIC SECTION ====== --}}
+                {{-- ====== POSTS FEED ====== --}}
                 <div class="posts-container">
 
                     @forelse($post as $posts)
@@ -131,21 +130,36 @@
 
                         <div class="post-body">
                             <p>{{ Str::limit($posts->description, 150) }}</p>
-                            <a href="{{ route('fullpost', $posts->id) }}" style="text-decoration: none; cursor: pointer;">
-                                <img style="width: 100%; max-width: 500px; aspect-ratio: 4 / 5; object-fit: cover; cursor: pointer;" src="{{ asset('img/' . $posts->image) }}" alt="{{ $posts->title }}">
+                            <a href="{{ route('fullpost', $posts->id) }}" style="text-decoration:none; cursor:pointer;">
+                                <img style="width:100%; max-width:500px; aspect-ratio:4/5; object-fit:cover;" 
+                                     src="{{ asset('img/' . $posts->image) }}" 
+                                     alt="{{ $posts->title }}">
                             </a>
                         </div>
 
                         <div class="post-footer">
                             <div class="post-reactions">
+
+                                {{-- FIXED: dynamic count and emoji instead of hardcoded 0 --}}
                                 <div class="reaction-count">
-                                    <span class="reaction-emoji" style="margin-right: 5px;"></span>
-                                    <span class="reaction-num">0</span>
+                                    <span class="reaction-emoji" style="margin-right:5px;">
+                                        {{ $posts->reactions->isNotEmpty() 
+                                            ? ['like'=>'👍','love'=>'❤️','haha'=>'😂','wow'=>'😮','sad'=>'😢','angry'=>'😡'][$posts->reactions->sortByDesc('created_at')->first()->type] 
+                                            : '' }}
+                                    </span>
+                                    <span class="reaction-num">{{ $posts->reactions->count() }}</span>
                                 </div>
+
                                 <div class="comment-count">{{ $posts->comments->count() }} comments</div>
                             </div>
+
                             <div class="post-buttons">
-                                <div class="reaction-btn-container">
+
+                                {{-- FIXED: merged data-post-id and data-reactors into ONE div --}}
+                                <div class="reaction-btn-container"
+                                     data-post-id="{{ $posts->id }}"
+                                     data-reactors="{{ $posts->reactions->map(fn($r) => ['name' => $r->user->name, 'type' => $r->type])->toJson() }}">
+
                                     <button class="reaction-btn" data-post-id="{{ $posts->id }}">
                                         <i class="far fa-heart"></i> Like
                                     </button>
@@ -158,13 +172,31 @@
                                         <div class="reaction-option" data-reaction="angry" title="Angry"><i class="fas fa-angry"></i> Angry</div>
                                     </div>
                                 </div>
-                                <button class="comment-btn"><i class="far fa-comment-alt"></i> Comment</button>
+                                {{-- END reaction-btn-container --}}
+
+                                {{-- comment form --}}
+                                @auth
+                                <div class="comment-btn-container">
+                                    <form action="{{ route('comment.store', $posts) }}" method="POST" style="display:flex; gap:10px; align-items:center; margin-top:16px;">
+                                        @csrf
+                                        <div style="width:36px; height:36px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        </div>
+                                        <input type="text" name="body" required placeholder="Write a comment..."
+                                            style="flex:1; background:#f0f2f5; border:none; border-radius:20px; padding:10px 16px; outline:none;">
+                                        <button type="submit" style="background:none; border:none; color:#1877f2; font-weight:600; cursor:pointer;">Post</button>
+                                    </form>
+                                </div>
+                                @else
+                                <div class="comment-btn-container">
+                                    <a href="{{ route('login') }}" style="color:#1877f2;">Log in to comment</a>
+                                </div>
+                                @endauth
+
                             </div>
                         </div>
 
                     </div>
-
-                    
                     @empty
                         <p style="text-align:center; color:#65676b; padding:20px;">No posts yet. Check back soon!</p>
                     @endforelse
@@ -177,7 +209,6 @@
 
     </div>
 
-   
     <nav class="bottom-nav">
         <a href="{{ route('home') }}" class="nav-icon active" data-section="home-section">
             <i class="fas fa-home"></i>

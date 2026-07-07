@@ -9,9 +9,8 @@ use App\Models\Post;
 class UserController extends Controller
 {
     public function  showDataInHome(){
-        $post=Post::all();
+        $post = Post::with(['comments', 'reactions.user'])->get();
         return view('home', compact('post'));
-
     }
 
     public function showFullPost($id){

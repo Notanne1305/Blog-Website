@@ -4,19 +4,17 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ReactionController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/',[UserController::class,'showDataInHome'])
-    ->name('home');
-Route::get('/fullpost/{id}', [UserController::class, 'showFullPost'])
-    ->name('fullpost');
-Route::post('/post{post}/comment', [CommentController::class, 'store'])
-    ->middleware('auth')
-    ->name('comment.store');
-Route::get('/dashboard', [UserController::class, 'home'])
-    ->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/',[UserController::class,'showDataInHome'])->name('home');
+    Route::get('/fullpost/{id}', [UserController::class, 'showFullPost'])->name('fullpost');
+    Route::post('/post{post}/comment', [CommentController::class, 'store'])->middleware('auth')->name('comment.store');
+    Route::get('/dashboard', [UserController::class, 'home'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::post('/post/{post}/react', [ReactionController::class, 'store'])->middleware('auth')->name('reaction.store');
+    Route::delete('/post/{post}/react', [ReactionController::class, 'destroy'])->middleware('auth')->name('reaction.destroy');
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::get('/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
@@ -27,7 +25,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::post('/dashboard/allpost/{id}',[AdminController::class, 'postupdate'])->name('admin.postupdate');
     Route::get('/dashboard/delete/{id}',[AdminController::class, 'deletePost'])->name('admin.deletepost');
     Route::post('/dashboard/delete/{id}',[AdminController::class, 'postDelete'])->name('admin.postdelete');
-    
 });
 
 Route::middleware('auth')->group(function () {
