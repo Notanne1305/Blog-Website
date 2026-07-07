@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
     Route::get('/dashboard', [UserController::class, 'home'])->middleware(['auth', 'verified'])->name('dashboard');
     Route::post('/post/{post}/react', [ReactionController::class, 'store'])->middleware('auth')->name('reaction.store');
     Route::delete('/post/{post}/react', [ReactionController::class, 'destroy'])->middleware('auth')->name('reaction.destroy');
+    Route::get('/post/{post}/comments', [CommentController::class, 'fetch'])->name('comment.fetch');
+    Route::post('/post/{post}/comment', [CommentController::class, 'store'])->middleware('auth')->name('comment.store');
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function(){
     Route::get('/dashboard', [UserController::class, 'index'])->name('admin.dashboard');

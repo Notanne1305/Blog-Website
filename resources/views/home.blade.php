@@ -90,7 +90,7 @@
                 <span><a href="{{ route('login') }}">Login</a></span>
             </div>
             @endauth
-        </div>
+        </div>{{-- end sidebar --}}
 
         <div class="center-content">
             <section id="home-section" class="content-section active">
@@ -101,7 +101,7 @@
                         <div style="width:40px; height:40px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold;">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
-                        <input type="text" 
+                        <input type="text"
                             placeholder="What's on your mind, {{ auth()->user()->name }}?"
                             onclick="window.location='{{ route('admin.addpost') }}'">
                     </div>
@@ -131,35 +131,31 @@
                         <div class="post-body">
                             <p>{{ Str::limit($posts->description, 150) }}</p>
                             <a href="{{ route('fullpost', $posts->id) }}" style="text-decoration:none; cursor:pointer;">
-                                <img style="width:100%; max-width:500px; aspect-ratio:4/5; object-fit:cover;" 
-                                     src="{{ asset('img/' . $posts->image) }}" 
+                                <img style="width:100%; max-width:500px; aspect-ratio:4/5; object-fit:cover;"
+                                     src="{{ asset('img/' . $posts->image) }}"
                                      alt="{{ $posts->title }}">
                             </a>
                         </div>
 
                         <div class="post-footer">
                             <div class="post-reactions">
-
-                                {{-- FIXED: dynamic count and emoji instead of hardcoded 0 --}}
                                 <div class="reaction-count">
                                     <span class="reaction-emoji" style="margin-right:5px;">
-                                        {{ $posts->reactions->isNotEmpty() 
-                                            ? ['like'=>'👍','love'=>'❤️','haha'=>'😂','wow'=>'😮','sad'=>'😢','angry'=>'😡'][$posts->reactions->sortByDesc('created_at')->first()->type] 
+                                        {{ $posts->reactions->isNotEmpty()
+                                            ? ['like'=>'👍','love'=>'❤️','haha'=>'😂','wow'=>'😮','sad'=>'😢','angry'=>'😡'][$posts->reactions->sortByDesc('created_at')->first()->type]
                                             : '' }}
                                     </span>
                                     <span class="reaction-num">{{ $posts->reactions->count() }}</span>
                                 </div>
-
                                 <div class="comment-count">{{ $posts->comments->count() }} comments</div>
                             </div>
 
                             <div class="post-buttons">
 
-                                {{-- FIXED: merged data-post-id and data-reactors into ONE div --}}
+                                {{-- Reaction button --}}
                                 <div class="reaction-btn-container"
                                      data-post-id="{{ $posts->id }}"
                                      data-reactors="{{ $posts->reactions->map(fn($r) => ['name' => $r->user->name, 'type' => $r->type])->toJson() }}">
-
                                     <button class="reaction-btn" data-post-id="{{ $posts->id }}">
                                         <i class="far fa-heart"></i> Like
                                     </button>
@@ -174,40 +170,97 @@
                                 </div>
                                 {{-- END reaction-btn-container --}}
 
-                                {{-- comment form --}}
-                                @auth
+                                {{-- Comment button --}}
                                 <div class="comment-btn-container">
-                                    <form action="{{ route('comment.store', $posts) }}" method="POST" style="display:flex; gap:10px; align-items:center; margin-top:16px;">
-                                        @csrf
-                                        <div style="width:36px; height:36px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
-                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                        </div>
-                                        <input type="text" name="body" required placeholder="Write a comment..."
-                                            style="flex:1; background:#f0f2f5; border:none; border-radius:20px; padding:10px 16px; outline:none;">
-                                        <button type="submit" style="background:none; border:none; color:#1877f2; font-weight:600; cursor:pointer;">Post</button>
-                                    </form>
+                                    @auth
+                                        <button class="comment-btn"
+                                            data-post-id="{{ $posts->id }}"
+                                            data-post-title="{{ $posts->title }}"
+                                            data-post-image="{{ asset('img/' . $posts->image) }}"
+                                            data-reaction-count="{{ $posts->reactions->count() }}"
+                                            data-comment-count="{{ $posts->comments->count() }}"
+                                            data-reaction-emojis="{{ $posts->reactions->groupBy('type')->keys()->map(fn($type) => ['like'=>'👍','love'=>'❤️','haha'=>'😂','wow'=>'😮','sad'=>'😢','angry'=>'😡'][$type])->join('') }}">
+                                            <i class="far fa-comment-alt"></i> Comment
+                                        </button>
+                                    @else
+                                        <a href="{{ route('login') }}" style="color:#1877f2;">Log in to comment</a>
+                                    @endauth
                                 </div>
-                                @else
-                                <div class="comment-btn-container">
-                                    <a href="{{ route('login') }}" style="color:#1877f2;">Log in to comment</a>
-                                </div>
-                                @endauth
+                                {{-- END comment-btn-container --}}
 
-                            </div>
-                        </div>
+                            </div>{{-- end post-buttons --}}
+                        </div>{{-- end post-footer --}}
 
-                    </div>
+                    </div>{{-- end post-card --}}
                     @empty
                         <p style="text-align:center; color:#65676b; padding:20px;">No posts yet. Check back soon!</p>
                     @endforelse
 
-                </div>
+                </div>{{-- end posts-container --}}
                 {{-- ====== END POSTS FEED ====== --}}
 
             </section>
-        </div>
+        </div>{{-- end center-content --}}
 
-    </div>
+    </div>{{-- end main-content-wrapper --}}
+
+    {{-- ====== COMMENT MODAL ====== --}}
+    <div id="comment-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+        <div style="background:white; border-radius:12px; width:100%; max-width:600px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
+
+            {{-- Modal Header --}}
+            <div style="padding:16px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="modal-post-title" style="margin:0; font-size:1.1em; font-weight:700;">Post</h3>
+                <button id="close-modal" style="background:#f0f2f5; border:none; font-size:1.2em; cursor:pointer; width:36px; height:36px; border-radius:50%;">✕</button>
+            </div>
+
+            {{-- Scrollable content --}}
+            <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column;">
+
+                {{-- Post Image --}}
+                <div style="width:100%; background:#000; display:flex; justify-content:center;">
+                    <img id="modal-image" src="" alt="" style="width:100%; max-height:350px; object-fit:contain;">
+                </div>
+
+                {{-- Reaction + Comment counts --}}
+                <div style="padding:8px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd;">
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <span id="modal-reaction-emojis" style="font-size:1.1em;"></span>
+                        <span id="modal-reaction-count" style="color:#65676b; font-size:0.9em;">0</span>
+                    </div>
+                    <div style="color:#65676b; font-size:0.9em;">
+                        <span id="modal-comment-count">0 comments</span>
+                    </div>
+                </div>
+
+                {{-- Comments List --}}
+                <div id="modal-comments-list" style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                    <p style="color:#65676b; text-align:center;">Loading comments...</p>
+                </div>
+
+            </div>{{-- end scrollable --}}
+
+            {{-- Comment Input --}}
+            @auth
+            <div style="padding:12px 16px; border-top:1px solid #ddd; display:flex; gap:10px; align-items:center;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <input type="text" id="modal-comment-input" placeholder="Write a comment..."
+                    style="flex:1; background:#f0f2f5; border:none; border-radius:20px; padding:10px 16px; outline:none;">
+                <button id="modal-comment-submit" style="background:none; border:none; color:#1877f2; font-weight:600; cursor:pointer;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            @else
+            <div style="padding:12px 16px; border-top:1px solid #ddd; text-align:center;">
+                <a href="{{ route('login') }}" style="color:#1877f2;">Log in to comment</a>
+            </div>
+            @endauth
+
+        </div>{{-- end modal inner --}}
+    </div>{{-- end comment-modal --}}
+    {{-- ====== END COMMENT MODAL ====== --}}
 
     <nav class="bottom-nav">
         <a href="{{ route('home') }}" class="nav-icon active" data-section="home-section">
@@ -222,7 +275,7 @@
         @endauth
     </nav>
 
-</div>
+</div>{{-- end facebook-container --}}
 
 <div class="overlay"></div>
 

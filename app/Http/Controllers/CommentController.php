@@ -8,17 +8,34 @@ use App\Models\Post;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Post $post)
+   public function store(Request $request, Post $post)
     {
-        $request->validate([
-            'body' => 'required|string|max:1000',
-        ]);
+    $request->validate(['body' => 'required|string|max:1000']);
 
-        $post->comments()->create([
-            'user_id' => Auth::id(),
-            'body' => $request->body,
-        ]);
+    $comment = $post->comments()->create([
+        'user_id' => Auth::id(),
+        'body' => $request->body,
+    ]);
 
-        return back()->with('success', 'Comment added!');
+    return response()->json([
+        'success' => true,
+        'comment' => [
+            'id' => $comment->id,
+            'body' => $comment->body,
+            'user_name' => Auth::user()->name,
+            'created_at' => $comment->created_at->diffForHumans(),
+        ]
+    ]);
+    }
+
+    public function fetch(Post $post)
+    {
+        $comments = $post->comments()->with('user')->latest()->get();
+        return response()->json($comments->map(fn($c) => [
+            'id' => $c->id,
+            'body' => $c->body,
+            'user_name' => $c->user->name,
+            'created_at' => $c->created_at->diffForHumans(),
+        ]));
     }
 }
